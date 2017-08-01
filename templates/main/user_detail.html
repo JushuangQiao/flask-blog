@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}用户资料{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <div class="'row well">
+        <table  style="margin-left: 200px" width="100%">
+            <caption style="font-size: xx-large; color: slateblue">
+                用户资料：{{ user.username }}
+                <br/>
+            </caption>
+            <thead>
+                <tr>
+                    <th data-file-width="30%"></th>
+                    <th data-file-width="70%"></th>
+                </tr>
+            </thead>
+            <tbody style="font-size: x-large">
+                <tr>
+                    <td>姓名</td>
+                    <td>{% if user.real_name %}{{ user.real_name }}{% endif %}</td>
+                </tr>
+                <tr>
+                    <td>年龄</td>
+                    <td>{% if user.age %}{{ user.age }}{% endif %}</td>
+                </tr>
+                <tr>
+                    <td>地址</td>
+                    <td>{% if user.location %}{{ user.location }}{% endif %}</td>
+                </tr>
+                {% if UserManager.is_administrator(current_user) %}
+                    <tr>
+                        <td>邮箱</td>
+                        <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td>注册时间</td>
+                    <td>{% if user.member_since %}{{ user.member_since }}{% endif %}</td>
+                </tr>
+                {% if user.last_seen %}
+                    <tr>
+                        <td>上次登陆时间</td>
+                        <td>{{ user.last_seen }}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td>关于我</td>
+                    <td>{% if user.about_me %}{{ user.about_me }}{% endif %}</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2 style="margin-left:200px">发表{{ user.posts.count() }} 篇博客</h2>
+        <h2 style="margin-left:200px">
+            {% if UserManager.can(current_user, Permission.FOLLOW) and user != current_user %}
+                {% if not UserManager.is_following(current_user, user) %}
+                <a href="{{ url_for('main.follow', username=user.username) }}" class="btn btn-primary">
+                    关注
+                </a>
+                {% else %}
+                <a href="{{ url_for('main.unfollow', username=user.username) }}" class="btn btn-default">
+                    取消关注
+                </a>
+                {% endif %}
+            {% endif %}
+            <a href="{{ url_for('main.followers', username=user.username) }}">
+                粉丝: <span class="badge">{{ user.followers.count() }}</span>
+            </a>
+            <a href="{{ url_for('main.followed_by', username=user.username) }}">
+                关注: <span class="badge">{{ user.followed.count() }}</span>
+            </a>
+            {% if current_user.is_authenticated and user != current_user and UserManager.is_following(user, current_user) %}
+            | <span class="label label-default">Follows you</span>
+            {% endif %}
+        </h2>
+        <h2>
+            {% if user == current_user and not UserManager.is_administrator(current_user) %}
+                <a style="margin-left:200px;color:blue" class="btn btn-default" href="{{ url_for('main.edit_profile', username=current_user.username) }}">
+                编辑资料
+                </a>
+            {% endif %}
+            {% if UserManager.is_administrator(current_user) %}
+            <a style="margin-left:200px" class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">
+                编辑资料 [Admin]
+            </a>
+            {% endif %}
+        </h2>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-xs-12 well">
+            <h3>{{ user.username }}发表的文章</h3>
+            {% include 'include/_post.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

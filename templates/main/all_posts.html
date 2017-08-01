@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "main/_macros.html" as macros %}
+
+{% block title %}文章{% endblock %}
+
+{% block page_content %}
+<div style="margin-left:80px" class="post-tabs">
+    <ul class="nav nav-tabs">
+        <li>
+            <a href="{{ url_for('main.show_all') }}">全部文章</a>
+        </li>
+    </ul>
+    {% include 'main/_posts.html' %}
+</div>
+{% if pagination %}
+<div class="pagination" style="margin-left:80px">
+    {{ macros.pagination_widget(pagination, 'main.show_all') }}
+</div>
+{% endif %}
+{% endblock %}

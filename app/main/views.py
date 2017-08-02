@@ -5,11 +5,12 @@
 """
 
 from flask import render_template, url_for, redirect, request, abort
+from flask import current_app as app
 from flask import make_response, flash
 from flask_login import login_required, current_user
 from . import main
 from .forms import EditProfileForm, EditAdminForm, PostForm, CommentForm
-from .. import db, app
+from .. import db
 from ..models.models import User, Permission, Post, Comment
 from ..decorators import admin_required, permission_required
 from ..models.manager import UserManager, PostManager, CommentManager
@@ -17,7 +18,6 @@ from ..models.manager import UserManager, PostManager, CommentManager
 
 @main.route('/blog', methods=['GET', 'POST'])
 def blog():
-    app.logger.info('aaa')
     user = User.query.filter_by(username=current_user.username).first_or_404()
     form = PostForm()
     if current_user.is_anonymous:
@@ -44,9 +44,11 @@ def home():
             query = UserManager.followed_posts(current_user)
         else:
             query = Post.query
-        pagination = query.order_by(Post.timestamp.desc()).paginate(page, per_page=10, error_out=False)
+        pagination = query.order_by(Post.timestamp.desc()).paginate(page,
+                                                                    per_page=10, error_out=False)
         posts = pagination.items
-        return render_template('main/home.html', posts=posts, show_followed=show_followed, pagination=pagination)
+        return render_template('main/home.html', posts=posts,
+                               show_followed=show_followed, pagination=pagination)
     except Exception, e:
         app.logger.error('func:user error:{0}'.format(e))
         abort(500)
@@ -60,11 +62,12 @@ def user_detail(username):
         abort(404)
     try:
         page = request.args.get('page', 1, type=int)
-        pagination = Post.query.filter_by(author_id=current_user.id).order_by(Post.timestamp.desc()).paginate(
-            page, per_page=10, error_out=False)
+        pagination = Post.query.filter_by(author_id=current_user.id).order_by(
+            Post.timestamp.desc()).paginate(page, per_page=10, error_out=False)
         posts = pagination.items
         istitle = 0
-        return render_template('main/user_detail.html', user=user, istitle=istitle, posts=posts, pagination=pagination)
+        return render_template('main/user_detail.html', user=user, istitle=istitle,
+                               posts=posts, pagination=pagination)
     except Exception, e:
         print e
         app.logger.error('func: detail failed:{0}'.format(e))
@@ -80,7 +83,8 @@ def edit_profile(username):
             UserManager.edit_profile(current_user, form)
             flash(u'您的资料已更改')
             return redirect(url_for('main.user_detail', username=username))
-        return render_template('main/edit_profile.html', form=UserManager.get_profile(current_user, form))
+        return render_template('main/edit_profile.html', form=UserManager.get_profile(
+            current_user, form))
     except Exception, e:
         app.logger.error('func:edit_profile error:{0}'.format(e))
         return render_template('main/edit_profile.html', form=form)
@@ -207,7 +211,8 @@ def show_all():
     if current_user.is_anonymous:
         page = request.args.get('page', 1, type=int)
         query = Post.query
-        pagination = query.order_by(Post.timestamp.desc()).paginate(page, per_page=10, error_out=False)
+        pagination = query.order_by(Post.timestamp.desc()).paginate(page,
+                                                                    per_page=10, error_out=False)
         posts = pagination.items
         return render_template('main/all_posts.html', posts=posts, pagination=pagination)
     else:
@@ -229,9 +234,11 @@ def show_followed():
 @permission_required(Permission.MODERATE_COMMENTS)
 def moderate():
     page = request.args.get('page', 1, type=int)
-    pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(page, per_page=10, error_out=False)
+    pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
+        page, per_page=10, error_out=False)
     comments = pagination.items
-    return render_template('main/moderate.html', comments=comments, pagination=pagination, page=page)
+    return render_template('main/moderate.html', comments=comments,
+                           pagination=pagination, page=page)
 
 
 @main.route('/moderate/enable/<int:id>')

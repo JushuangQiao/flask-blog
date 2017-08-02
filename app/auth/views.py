@@ -5,9 +5,9 @@
 """
 
 from flask import render_template, redirect, url_for, request, flash
+from flask import current_app as app
 from flask_login import logout_user, login_required, current_user
 from . import auth
-from .. import app
 from ..models.manager import UserManager
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm, ResetPasswordForm
 
@@ -23,7 +23,8 @@ def login():
     form = LoginForm()
     try:
         if form.validate_on_submit():
-            email, password, remember_me = form.email.data, form.password.data, form.remember_me.data
+            email, password = form.email.data, form.password.data
+            remember_me = form.remember_me.data
             user = UserManager.verify_password(email, password, remember_me)
             if user:
                 return redirect(request.args.get('next') or url_for('main.home'))

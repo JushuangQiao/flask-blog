@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from flask import render_template, jsonify, request
-from .. import app
+from flask import current_app as app
 
 
 @app.errorhandler(403)

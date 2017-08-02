@@ -4,12 +4,14 @@
 入口文件
 """
 
-from app import db, app
+import os
+from app import db, create_app
 from app.models.models import Permission, Follow, Comment
 from app.models.manager import UserManager, RoleManager, PostManager
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell, Server
 
+app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
 manager = Manager(app)
 migrate = Migrate(app, db)

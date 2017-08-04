@@ -13,7 +13,7 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     formatter = logging.Formatter(
         "[%(asctime)s][%(pathname)s:%(lineno)d][%(levelname)s] %(message)s")
-    handler = RotatingFileHandler('./running.log')
+    handler = RotatingFileHandler('./blog.log')
     handler.setLevel(logging.INFO)
     handler.setFormatter(formatter)
 

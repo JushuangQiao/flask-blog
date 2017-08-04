@@ -3,7 +3,7 @@
 """
 数据模型管理部分
 """
-import logging
+
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app, url_for
@@ -49,8 +49,8 @@ class UserManager(object):
             db.session.add(user)
             UserManager.follow(user, user)
             db.session.add(user)
-        except Exception, e:
-            logging.error('class: UserManager failed {0}'.format(e))
+        except Exception as e:
+            current_app.logger.error('UserManager.add_user failed: {0}'.format(e))
 
     @staticmethod
     def verify_password(email, password, remember_me=None):
@@ -60,16 +60,16 @@ class UserManager(object):
                 login_user(user, remember_me)
                 return user
             return False
-        except Exception, e:
-            logging.error('class: UserManager failed {0}'.format(e))
+        except Exception as e:
+            current_app.logger.error('UserManager.verify_password failed: {0}'.format(e))
 
     @staticmethod
     def change_password(user, param):
         try:
             user.password = generate_password_hash(str(param.password.data))
             db.session.add(user)
-        except Exception, e:
-            logging.error('class: UserManager failed {0}'.format(e))
+        except Exception as e:
+            current_app.logger.error('UserManager.change_password failed: {0}'.format(e))
 
     @staticmethod
     def generate_fake(count=32):
@@ -179,7 +179,8 @@ class UserManager(object):
 
     @staticmethod
     def followed_posts(user):
-        return Post.query.join(Follow, Follow.followed_id == Post.author_id).filter(Follow.follower_id == user.id)
+        return Post.query.join(Follow, Follow.followed_id == Post.author_id).filter(
+            Follow.follower_id == user.id)
 
     @staticmethod
     def generate_auth_token(user, expiration):
@@ -218,15 +219,15 @@ class PostManager(object):
             post = Post(title=title, body=body, author_id=author.id)
             db.session.add(post)
             db.session.commit()
-        except Exception, e:
-            logging.error('class PostManager add_post failed:{0}'.format(e))
+        except Exception as e:
+            current_app.logger.error('PostManager.add_post failed: {0}'.format(e))
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'h1', 'h2', 'h3', 'p']
-        target.body_html = bleach.linkify(bleach.clean(markdown(value, output_format='html'), tags=allowed_tags,
-                                                       strip=True))
+        target.body_html = bleach.linkify(bleach.clean(markdown(value, output_format='html'),
+                                                       tags=allowed_tags, strip=True))
 
     @staticmethod
     def generate_fake(count=32):
@@ -238,7 +239,8 @@ class PostManager(object):
         user_count = User.query.count()
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
-            p = Post(title=forgery_py.name.title(), body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
+            p = Post(title=forgery_py.name.title(),
+                     body=forgery_py.lorem_ipsum.sentences(randint(1, 5)),
                      timestamp=forgery_py.date.date(True),
                      author_id=u)
             db.session.add(p)
@@ -272,8 +274,8 @@ class CommentManager(object):
             comment = Comment(body=body, post_id=post.id, author_id=author.id)
             db.session.add(comment)
             db.session.commit()
-        except Exception, e:
-            logging.error('class CommentManager add_post failed:{0}'.format(e))
+        except Exception as e:
+            current_app.logger.error('CommentManager.add_comment failed: {0}'.format(e))
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):

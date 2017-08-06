@@ -40,7 +40,8 @@ def get_post(id):
 @api.route('/posts/', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_post():
-    PostManager.add_post(title=request.form.get('title'), body=request.form.get('body'), author=g.current_user)
+    PostManager.add_post(title=request.form.get('title'), body=request.form.get('body'),
+                         author=g.current_user)
     return jsonify({'success': True})
 
 

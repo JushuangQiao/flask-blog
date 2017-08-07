@@ -18,10 +18,10 @@ from ..models.manager import UserManager, PostManager, CommentManager
 
 @main.route('/blog', methods=['GET', 'POST'])
 def blog():
-    user = User.query.filter_by(username=current_user.username).first_or_404()
     form = PostForm()
     if current_user.is_anonymous:
         return redirect(url_for('main.show_all'))
+    user = User.query.filter_by(username=current_user.username).first_or_404()
     try:
         if UserManager.can(current_user, Permission.WRITE_ARTICLES) and form.validate_on_submit():
             PostManager.add_post(title=form.title.data, body=form.body.data, author=current_user)

@@ -12,16 +12,27 @@
                 </span>
             </span>
             <span class="post-footer">
-                <span class="label">{{ moment(post.timestamp).fromNow() }}</span>
                 {% if current_user == post.author %}
-                <span class="label label-default"><a href="{{ url_for('main.edit_post',id=post.id) }}">编辑</a></span>
-                {% elif UserManager.is_administrator(current_user) %}
-                <span class="label label-default"><a href="{{ url_for('main.edit_post',id=post.id) }}">编辑[管理员]</a></span>
+                <span class="label label-default">
+                    <a href="{{ url_for('main.edit_post',id=post.id) }}">编辑</a>
+                </span>
                 {% endif %}
-                <span class="label label-default"><a href="{{ url_for('main.post', id=post.id) }}">文章链接</a></span>
+                <span class="label label-default">
+                    <a href="{{ url_for('main.post', id=post.id) }}">文章链接</a>
+                </span>
                 <span class="label label-default">
                     <a href="{{ url_for('main.post', id=post.id) }}">{{ post.comments.count() }}个评论</a>
                 </span>
+                {% if UserManager.is_administrator(current_user) %}
+                <span class="label label-default">
+                    <a href="{{ url_for('main.del_post',id=post.id) }}">删除[管理员]</a>
+                </span>
+                {% elif current_user == post.author %}
+                <span class="label label-default">
+                    <a href="{{ url_for('main.del_post',id=post.id) }}">删除</a>
+                </span>
+                {% endif %}
+                <span class="label">{{ moment(post.timestamp).fromNow() }}</span>
             </span>
         </div>
         <div class="panel-body">

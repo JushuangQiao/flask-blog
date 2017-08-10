@@ -223,6 +223,17 @@ class PostManager(object):
             current_app.logger.error('PostManager.add_post failed: {0}'.format(e))
 
     @staticmethod
+    def del_post(post_id=None):
+        try:
+            post = Post.query.filter_by(id=post_id).first()
+            db.session.delete(post)
+            db.session.commit()
+            return True
+        except Exception as e:
+            current_app.logger.error('PostManager.del_post failed: {0}'.format(e))
+            return False
+
+    @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'h1', 'h2', 'h3', 'p']

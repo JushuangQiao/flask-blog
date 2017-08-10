@@ -150,6 +150,20 @@ def edit_post(id):
         app.logger.error('func: edit_post error:{0}'.format(e))
 
 
+@main.route('/delete/<int:id>', methods=['GET', 'POST'])
+def del_post(id):
+    post = Post.query.get_or_404(id)
+    if current_user != post.author and not UserManager.can(current_user, Permission.ADMINISTER):
+        abort(403)
+    try:
+        ret = PostManager.del_post(id)
+        flash(u'删除成功') if ret else flash(u'删除失败')
+    except Exception as e:
+        app.logger.error('del_post failed: {0}'.format(e))
+    finally:
+        return redirect(url_for('main.home'))
+
+
 @main.route('/follow/<username>')
 @login_required
 @permission_required(Permission.FOLLOW)

@@ -9,11 +9,11 @@ from flask import current_app as app
 from flask import make_response, flash
 from flask_login import login_required, current_user
 from . import main
-from .forms import EditProfileForm, EditAdminForm, PostForm, CommentForm
-from .. import db
-from ..models.models import User, Permission, Post, Comment
-from ..decorators import admin_required, permission_required
-from ..models.manager import UserManager, PostManager, CommentManager
+from forms import EditProfileForm, EditAdminForm, PostForm, CommentForm
+from app.models import db
+from app.models.models import User, Permission, Post, Comment
+from app.decorators import admin_required, permission_required
+from app.models.manager import UserManager, PostManager, CommentManager
 
 
 @main.route('/blog', methods=['GET', 'POST'])

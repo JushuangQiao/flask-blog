@@ -4,7 +4,7 @@
 ## 安装步骤
 ### 1. 安装 virtualenv
 ### 2. 安装虚拟环境：virtualenv venv
-### 3. 进入虚拟环境路径：cd venv/lib/python2.7/site-packages/blog
+### 3. 进入虚拟环境路径：cd venv/lib/python2.7/site-packages/
 ### 4. 拉取代码：git clone git@github.com:JushuangQiao/blog.git
 ### 5. 进入虚拟环境：source bin/activate
 ### 6. 安装依赖包: pip install -r requirements.txt

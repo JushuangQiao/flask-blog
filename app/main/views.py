@@ -69,7 +69,6 @@ def user_detail(username):
         return render_template('main/user_detail.html', user=user, istitle=istitle,
                                posts=posts, pagination=pagination)
     except Exception, e:
-        print e
         app.logger.error('func: detail failed:{0}'.format(e))
         abort(500)
 

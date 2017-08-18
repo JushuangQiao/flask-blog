@@ -93,3 +93,8 @@ def reset_password():
         app.logger.error('func: reset_password error:{0}'.format(e))
         return render_template('auth/reset_password.html', form=form)
     return render_template('auth/reset_password.html', form=form)
+
+
+@auth.route('/change-user-set')
+def change_user_set():
+    return render_template('main/moderate.html')

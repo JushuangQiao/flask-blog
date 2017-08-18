@@ -51,7 +51,18 @@ def home():
                                show_followed=show_followed, pagination=pagination)
     except Exception, e:
         app.logger.error('func:user error:{0}'.format(e))
-        abort(500)
+        #abort(500)
+        if current_user.is_authenticated:
+            show_followed = bool(request.cookies.get('show_followed', ''))
+        if show_followed:
+            query = UserManager.followed_posts(current_user)
+        else:
+            query = Post.query
+        pagination = query.order_by(Post.timestamp.desc()).paginate(page,
+                                                                    per_page=10, error_out=False)
+        posts = pagination.items
+        return render_template('main/home.html', posts=posts,
+                               show_followed=show_followed, pagination=pagination)
 
 
 @main.route('/user/<username>/details')
@@ -272,3 +283,33 @@ def moderate_disable(id):
     comment.disabled = True
     db.session.add(comment)
     return redirect(url_for('main.moderate', page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/about')
+def about():
+    return render_template('main/moderate.html')
+
+
+@main.route('/video')
+def video():
+    return render_template('main/moderate.html')
+
+
+@main.route('/edit')
+def edit():
+    return render_template('main/moderate.html')
+
+
+@main.route('/show-message')
+def show_message():
+    return render_template('main/moderate.html')
+
+
+@main.route('/show-notice')
+def show_notice():
+    return render_template('main/moderate.html')
+
+
+@main.route('/show-web-push')
+def show_web_push():
+    return render_template('main/moderate.html')

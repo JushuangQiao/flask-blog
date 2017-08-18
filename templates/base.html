@@ -1,68 +1,54 @@
-{% extends 'bootstrap/base.html' %}
+{% extends 'bootstrap_base.html' %}
 
-    {% block title %}Qiao{% endblock %}
-    {% block metas %}<meta charset="UTF-8">{% endblock %}
-    {% block head %}
-        {{ super() }}
-        {% include 'include/_header.html' %}
-    {% endblock %}
+{% block head %} <!-- headstart -->
 
-    {% block styles %}
-        {{ super() }}
-    <!-- Material Design fonts -->
-        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
-        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
-    <!-- Bootstrap Material Design -->
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='bootstrap-material-design.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='ripples.min.css') }}">
-    <!-- Dropdown.js -->
-        <link href="{{ url_for('static',filename='jquery.dropdown.css') }}" rel="stylesheet">
-    <!-- codehilite -->
-        <link href="{{ url_for('static',filename='codehilite.css') }}" rel="stylesheet">
-    <style>
-    body {
-        padding-top: 70px;
-    }
-    </style>
-    {% endblock %}
+{% block metas %}
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>{% block title %}{% endblock %}</title>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+{% endblock%}
+<link rel="icon" href="{{ url_for('static', filename = 'img/favicon.ico') }}"
+type="image/x-icon">
 
-    {% block navbar %}
-       {% include 'include/_navbar.html' %}
-       {# {{ nav.top.render() }} #}
-    {% endblock %}
+{% block styles %}
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=1523741413" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/styles.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/bootstrap.min.css')}}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"> <!-- 提供通知小图标 -->
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/ionicons.min.css')}}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{url_for('static',filename='css/AdminLTE.min.css')}}">
 
+    <link rel="stylesheet" href="{{url_for('static',filename='css/skin-blue.min.css')}}">
+<!--     <script>var _hmt = _hmt || [];(function() {  var hm = document.createElement("script");  hm.src = "//hm.baidu.com/hm.js?4ef56ac18f75724ce187ba84286f0c6d";  var s = document.getElementsByTagName("script")[0];   s.parentNode.insertBefore(hm, s);})();</script> -->
+{% endblock %}
+{% endblock %} <!-- headend -->
 
-    {% block content %}
-        {{ super() }}
-        <div class="container">
-            <div class="row">
-            {% for message in get_flashed_messages() %}
-                <div class="alert alert-warning">
-                    <button type="button" class="close" data-dismiss="alert">
-                        x
-                    </button>
-                    {{ message }}
-                </div>
-            {% endfor %}
-            </div>
-        </div>
-        {% block page_content %}{% endblock %}
-    {% endblock %}
+{% block navbar %}
+    {% include 'include/_navbar.html' %}
+{% endblock navbar %}
 
-    {% block scripts %}
-        {{ super() }}
-        {{ moment.include_moment() }}
-        {{ moment.lang("zh-CN") }}
+{% block contenthead %}
+{% for message in get_flashed_messages() %}
+<div class="alert alert-warning">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  {{ message }}
+</div>
+{% endfor %}　　<!-- flash消息弹出 -->
+{% endblock %}
 
-        <script src="{{ url_for('static',filename='material.js') }}"></script>
-        <script src="{{ url_for('static',filename='ripples.min.js') }}"></script>
-        <script>
-        $.material.init();
-        </script>
+{% block footandrightnavbar %}
+    {% include 'include/_foot.html' %}
+{% endblock footandrightnavbar %}
 
-        <!-- Dropdown.js -->
-        <script src="{{ url_for('static',filename='jquery.dropdown.js') }}"></script>
-        <script>
-        $("select").dropdown();
-        </script>
-    {% endblock %}
+{% block scripts %}
+{{ moment.include_jquery() }}
+{{ moment.include_moment() }}
+{{ moment.lang("zh-CN") }}
+<script src="{{url_for('static',filename='js/jquery-2.2.3.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/app.min.js')}}"></script>
+{% endblock %}

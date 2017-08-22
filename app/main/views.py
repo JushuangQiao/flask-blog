@@ -285,9 +285,9 @@ def moderate_disable(id):
     return redirect(url_for('main.moderate', page=request.args.get('page', 1, type=int)))
 
 
-@main.route('/about')
+@main.route('/about', methods=['GET', 'POST'])
 def about():
-    return render_template('main/moderate.html')
+    return render_template('main/about.html')
 
 
 @main.route('/video')

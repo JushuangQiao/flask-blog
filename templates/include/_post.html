@@ -1,77 +1,73 @@
-<div class="posts" style="margin-top: 20px">
+<ul class="posts">
     {% for post in posts %}
-    {% if UserManager.can(post.author, Permission.WRITE_ARTICLES) %}
-    <!--<ul class="post well">-->
-    <div class="post panel panel-default">
-        <div class="panel-heading" style="display: flex; justify-content: space-between;">
-            <span>
-                <span class="post-author">
-                        <a href="{{ url_for('main.user_detail',username=post.author.username) }}">
-                            {{ post.author.username }}
-                        </a>
-                </span>
-            </span>
-            <span class="post-footer">
-                {% if current_user == post.author %}
-                <span class="label label-default">
-                    <a href="{{ url_for('main.edit_post',id=post.id) }}">编辑</a>
-                </span>
-                {% endif %}
-                <span class="label label-default">
-                    <a href="{{ url_for('main.post', id=post.id) }}">文章链接</a>
-                </span>
-                <span class="label label-default">
-                    <a href="{{ url_for('main.post', id=post.id) }}">{{ post.comments.count() }}个评论</a>
-                </span>
-                {% if UserManager.is_administrator(current_user) %}
-                <span class="label label-default">
-                    <a href="{{ url_for('main.del_post',id=post.id) }}">删除[管理员]</a>
-                </span>
-                {% elif current_user == post.author %}
-                <span class="label label-default">
-                    <a href="{{ url_for('main.del_post',id=post.id) }}">删除</a>
-                </span>
-                {% endif %}
-                <span class="label">{{ moment(post.timestamp).fromNow() }}</span>
-            </span>
-        </div>
-        <div class="panel-body">
-            <div class="post-title">
-                <span class="link_title">
-                        <h3> {{ post.title }} </h3>
-                        <br />
-                </span>
-            </div>
-            {% if post_body %}
-            <div class="post-content">
-                <div class="post-body">
-                    {% if post.body_html %}
-                        {{ post.body_html|safe }}
-                    {% else %}
-                        {{ post.body }}
-                    {% endif %}
-                </div>
-            </div>
+    <li class="post">
+        <div class="post-thumbnail">
+            <a href="{{ url_for('main.user_detail', username=post.author.username) }}">
+            {% if post.author.username == "wen" %}
+                <img class="img-rounded profile-thumbnail" src="../static/img/me.jpg" style="width:40px;height:40px;">
             {% else %}
-            <div class="post-content">
-                <div class="post-body" style="max-height:300px;overflow: hidden;">
-                    {% if post.body_html %}
-                        {{ post.body_html|safe }}
-                    {% else %}
-                        {{ post.body }}
-                    {% endif %}
-                </div>
-            </div>
+                <img class="img-rounded profile-thumbnail" src="../static/img/other.jpg" style="width:40px;height:40px;">
             {% endif %}
+            </a>
         </div>
-    </div>
-    {% endif %}
-    <!--</ul>-->
+        <div class="post-content">
+
+            <div class="post-date">
+            {% if current_user.is_authenticated %}
+                {% if not current_user.staring(post)  %}
+                <a href="{{ url_for('main.star', id=post.id) }}#comments">
+                <span class="label label-primary">添加到收藏</span>
+                </a>
+                {% else %}
+                <a href="{{ url_for('main.unstar',id=post.id) }}#comments">
+                <span class="label label-default">取消收藏</span>
+                </a>
+                {% endif %}
+            {% else %}
+            <a href="{{ url_for('main.star',id=post.id) }}#comments">
+            <span class="label label-primary">添加到收藏</span>
+            </a>
+            {% endif %}
+
+            {{ post.timestamp }}</div>
+            <div class="post-author">
+                <a href="{{ url_for('main.user_detail', username=post.author.username) }}">
+                    {{ post.author.username }}
+                </a>
+            </div>
+            <div class="post-head">
+            <a href="{{ url_for('main.post', id=post.id) }}">
+                <h2>{{ post.head }} <small>
+            </a>&nbsp;&nbsp;&nbsp;阅读:{{ post.visits }}&nbsp;收藏:{{ post.stared.__len__() }}</small></h2>
+            </div>
+            <div class="post-body">
+                {% if post.body_html %}
+                    {{ post.body_html | safe }}
+                {% else %}
+                    {{ post.body }}
+                {% endif %}
+            </div>
+            <div class="post-footer">
+                {% if current_user == post.author %}
+                <a href="{{ url_for('main.edit_post', id=post.id) }}">
+                    <span class="label label-primary">编辑</span>
+                <a href="{{ url_for('main.del_post', id=post.id) }}" class="label label-danger">
+                    <span class="label label-danger">删除</span>
+                    </a>
+                </a>
+                {% elif UserManager.is_administrator(current_user) %}
+                <a href="{{ url_for('main.edit_post', id=post.id) }}">
+                    <span class="label label-danger">编辑 [Admin]</span>
+                </a>
+                {% endif %}
+                <!-- <a href="{{ url_for('main.post', id=post.id) }}">
+                    <span class="label label-default">查看</span>
+                </a> -->
+                <a href="{{ url_for('main.post', id=post.id) }}#comments">
+                    <span class="label label-primary">{{ post.comments.count() }} 评论</span>
+                </a>
+            </div>
+        </div>
+    </li>
     {% endfor %}
-</div>
-
-<style>
-
-.post-body img{ max-width: 100%; display: block; }
-
-</style>
+</ul>

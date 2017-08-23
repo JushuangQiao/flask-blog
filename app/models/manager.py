@@ -1,7 +1,7 @@
 # coding=utf-8
 
 """
-数据模型管理部分
+数据管理部分
 """
 
 from datetime import datetime
@@ -214,9 +214,9 @@ class UserManager(object):
 class PostManager(object):
 
     @staticmethod
-    def add_post(title=None, body=None, author=None):
+    def add_post(head=None, body=None, author=None, category=None):
         try:
-            post = Post(title=title, body=body, author_id=author.id)
+            post = Post(head=head, body=body, author_id=author.id, category=category)
             db.session.add(post)
             db.session.commit()
         except Exception as e:

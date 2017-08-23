@@ -290,11 +290,6 @@ def about():
     return render_template('main/about.html')
 
 
-@main.route('/video')
-def video():
-    return render_template('main/moderate.html')
-
-
 @main.route('/edit')
 def edit():
     return render_template('main/moderate.html')

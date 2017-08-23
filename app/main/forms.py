@@ -56,9 +56,10 @@ class EditAdminForm(FlaskForm):
 
 
 class PostForm(FlaskForm):
-    title = StringField(u'题目', validators=[DataRequired()])
-    body = PageDownField(u'内容', validators=[DataRequired()])
-    submit = SubmitField(u'提交')
+    category = SelectField(u'文章类别', coerce=int)
+    title = StringField(u'标题', validators=[DataRequired()])
+    body = PageDownField(u'正文', validators=[DataRequired()])
+    submit = SubmitField(u'发布')
 
 
 class CommentForm(FlaskForm):

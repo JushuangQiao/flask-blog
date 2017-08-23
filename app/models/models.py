@@ -62,6 +62,7 @@ class User(UserMixin, db.Model):
     role_id = Column(Integer, ForeignKey('roles.id'))
     real_name = Column(String(64))
     location = Column(String(64))
+    avatar_hash = db.Column(db.String(32))
     about_me = Column(Text())
     member_since = Column(DateTime(), default=datetime.utcnow)
     last_seen = Column(DateTime(), default=datetime.utcnow)
@@ -74,8 +75,8 @@ class User(UserMixin, db.Model):
                                 backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic', cascade='all, delete-orphan')
 
-    def __init__(self, username=None, password=None, email=None, age=None, role_id=None, real_name=None,
-                 location=None, about_me=None, member_since=None, last_seen=None):
+    def __init__(self, username=None, password=None, email=None, age=None, role_id=None,
+                 real_name=None, location=None, about_me=None, member_since=None, last_seen=None):
         self.username = username
         self.email = email
         self.age = age

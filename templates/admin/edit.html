@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "include/_macros.html" as macros %}
+
+{% block title %}后台管理{% endblock %}
+
+{% block navbar %}
+    {% include 'include/_navbar.html' %}
+{% endblock %}
+
+
+{% block contenthead %}
+{{ super() }}
+<section class="content-header" >
+<!--   <h1>
+    Dashboard
+    <small>Control panel</small>
+  </h1> -->
+  <ol class="breadcrumb">
+    <li><a href="{{ url_for('main.home') }}"><i class="fa fa-fw fa-home"></i>首页</a></li>
+    <li class="active"><a href="#">网站后台</a></li>
+  </ol>
+</section>
+{% endblock %}
+
+
+{% block page_content %}
+
+{{super()}}
+
+{% if UserManager.is_administrator(current_user) %}
+<h1><strong> {{ current_user.real_name }},欢迎来到Blog后台 </strong><small>{{ moment(g.current_time).format('LLL') }}</small></h1>
+
+<!--     <p>That was {{ moment(g.current_time).fromNow(refresh=True) }}</p>
+<script >
+document.write("现在是"+(new Date()).toLocaleDateString() + " " + (new Date()).toLocaleTimeString());
+// 时间
+</script>  -->
+<div class="btn-group">
+<a href="{{ url_for('admin.edit') }}" class="btn btn-info" >后台管理员</a>
+<a href="{{ url_for('admin.edit_user') }}" class="btn btn-default">所有用户</a>
+<a href="{{ url_for('admin.edit_post') }}" class="btn btn-default">文章管理</a>
+<a href="{{ url_for('admin.edit_category') }}" class="btn btn-default">分类管理</a>
+<a href="{{ url_for('admin.edit_comment') }}" class="btn btn-default">评论管理</a>
+</div>
+</br>
+
+
+<h3><strong>后台管理员列表</strong>
+<a href="{{ url_for('admin.add_admin') }}">&nbsp;<small>添加管理员</small><i class="fa fa-plus"></i></a>
+
+</h3>
+<div class="row">
+ <div class="col-xs-12">
+    <div class="box-body table-responsive no-padding">
+      <table class="table table-hover">
+        <tr>
+          <th>管理员</th>
+          <th>注册时间</th>
+          <th>操作</th>
+        </tr>
+        {% for user in admins %}
+        <tr>
+          {% if user.username  %}
+	          <td><a href="{{ url_for('main.user_detail',username=user.username) }}">{{ user.username }}</a></td>
+	          <td>{{ moment(user.member_since).format('L') }}</td>
+	          {% if user != current_user %}
+		          <td><a href="{{ url_for('admin.admin2user',id=user.id) }}" class="label label-danger">
+		              降为普通用户
+		              </a>
+		          </td>
+	          {% else %}
+		          <td><a href="#" class="label label-default">
+		              花式作死
+		              </a>
+		          </td>
+	          {% endif %}
+	      {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div><!-- /.box-body -->
+<!--   </div> --><!-- /.box -->
+</div>
+</div>
+
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, 'admin.edit') }}
+</div>
+{% endif %}
+
+{%else %}
+<h3><strong>你没有权限进入后台，请联系网站管理员:<a href="mailto:qiaojushuang@163.com">qiaojushuang@163.com</a></strong></h3>
+{% endif %}
+
+{% endblock %}
+

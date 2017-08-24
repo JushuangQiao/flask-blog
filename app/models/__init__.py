@@ -1,7 +1,7 @@
 # coding=utf-8
 
 
-from .. import db
+from app import db
 
 
 Column = db.Column

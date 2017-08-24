@@ -24,7 +24,7 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql://qiao:123456@localhost/blog'
+    SQLALCHEMY_DATABASE_URI = 'mysql://qiao:123456@localhost/f_blog'
 
 
 class TestingConfig(Config):

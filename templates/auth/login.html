@@ -2,30 +2,30 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}登录{% endblock %}
-{% block head %}
-    {{ super() }}
-    <style type="text/css">
-        #loginlength {
-            width: 35%;
-        }
-    </style>
+
+
+{% block contenthead %}
+{{ super() }}
+<section class="content-header">
+<!--   <h1>
+    Dashboard
+    <small>Control panel</small>
+  </h1> -->
+  <ol class="breadcrumb">
+    <li><a href="{{ url_for('main.home') }}"><i class="fa fa-fw fa-home"></i>首页</a></li>
+    <li class="active"><a href="#">登录</a></li>
+  </ol>
+</section>
 {% endblock %}
 
 {% block page_content %}
-    <div class="page-header">
-        <div class="container">
-            <h1 style="margin-left: 250px">登录</h1>
-        </div>
-    </div>
-    <div class="col-md-4" style="margin-left:300px">
-        <form method="post">
-            {{ wtf.quick_form(form) }}
-        </form>
-        <br />
-        <p style="color:red">新用户? <a href="{{ url_for('auth.register') }}">点击这里注册</a></p>
-        <br />
-        <p style="color:red">忘记密码? <a href="{{ url_for('auth.reset_password') }}">点击找回</a></p>
-    </div>
+<div class="page-header">
+    <h1>登录</h1>
+</div>
+<div class="col-md-4">
+    {{ wtf.quick_form(form) }}
+    <br>
+    <p>忘记密码? <a href="{{ url_for('auth.reset_password') }}">找回密码</a>.</p>
+    <p>新用户? <a href="{{ url_for('auth.register') }}">注册</a>.</p>
+</div>
 {% endblock %}
-
-

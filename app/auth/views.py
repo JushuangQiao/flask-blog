@@ -4,16 +4,24 @@
 用户登录部分
 """
 
-from flask import render_template, redirect, url_for, request, flash
+from datetime import datetime
+from flask import render_template, redirect, url_for, request, flash, g
 from flask import current_app as app
 from flask_login import logout_user, login_required, current_user
 from . import auth
-from ..models.manager import UserManager
+from app import db
+from app.models.manager import UserManager
+from app.models.models import Post, Category
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm, ResetPasswordForm
+from app.main.forms import SearchForm
 
 
 @auth.before_app_request
 def before_request():
+    g.search_form = SearchForm()
+    g.hot_post = Post().hotpost()
+    g.current_time = datetime.utcnow()
+    g.categorys = Category.query.all()
     if current_user.is_authenticated:
         UserManager.ping(current_user)
 
@@ -97,4 +105,13 @@ def reset_password():
 
 @auth.route('/change-user-set')
 def change_user_set():
-    return render_template('main/moderate.html')
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.old_password.data):
+            current_user.password = form.password.data
+            db.session.add(current_user)
+            flash('Your password has been updated.')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid password.')
+    return render_template("auth/change_user_set.html", form=form)

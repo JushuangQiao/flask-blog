@@ -3,11 +3,25 @@
 
 {% block title %}注册{% endblock %}
 
-{% block content %}
-    <div class="page-head">
-        <h1 style="margin-left:300px;color:green">注册</h1>
-    </div>
-    <div class="col-md-4" style="margin-left:290px">
-        {{ wtf.quick_form(form) }}
-    </div>
+{% block contenthead %}
+{{ super() }}
+<section class="content-header" >
+<!--   <h1>
+    Dashboard
+    <small>Control panel</small>
+  </h1> -->
+  <ol class="breadcrumb">
+    <li><a href="{{ url_for('main.home') }}"><i class="fa fa-fw fa-home"></i>首页</a></li>
+    <li class="active"><a href="#">注册</a></li>
+  </ol>
+</section>
+{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>注册</h1>
+</div>
+<div class="col-md-4">
+    {{ wtf.quick_form(form) }}
+</div>
 {% endblock %}

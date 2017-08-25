@@ -42,13 +42,13 @@
                     <!-- Menu toggle button -->
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                       <i class="fa fa-envelope-o"></i>
-                      <span class="label label-success"> 11 </span>
+                      <span class="label label-success"> {{ current_user.unread_messages()}} </span>
                     </a>
                     <ul class="dropdown-menu">
-                      <li class="header">你有 12 条未读私信</li>
+                      <li class="header">你有 {{ current_user.unread_messages()}} 条未读私信</li>
                       <li>
                         <!-- inner menu: contains the messages -->
-                        {% if -1 > 0 %}
+                        {% if current_user.unread_messages() > 0 %}
                         <ul class="menu">
                           <li><!-- start message -->
                             <a href="{{ url_for('main.show_message') }}">
@@ -65,7 +65,7 @@
                               <br>
                               </h4>
                               <!-- The message -->
-                              <p>对你说:hh</p>
+                              <p>{{ current_user.lastmessageform().username }}对你说:{{ current_user.lastmessage().body }}</p>
                             </a>
                           </li><!-- end message -->
                         </ul><!-- /.menu -->
@@ -91,13 +91,13 @@
                     <!-- Menu toggle button -->
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                       <i class="fa fa-bell-o"></i>
-                      <span class="label label-warning">44</span>
+                      <span class="label label-warning">{{ current_user.unread_comments() }}</span>
                     </a>
                     <ul class="dropdown-menu">
-                      <li class="header">你有 66 条未读评论</li>
+                      <li class="header">你有 {{ current_user.unread_comments() }} 条未读评论</li>
                       <li>
                         <!-- inner menu: contains the messages -->
-                        {% if -1 > 0  %}
+                        {% if current_user.commented.count() > 0  %}
                         <ul class="menu">
                           <li><!-- start message -->
                             <a href="{{ url_for('main.show_notice') }}">
@@ -110,7 +110,7 @@
                               </div>
                               <!-- Message title and timestamp -->
                               <h4>
-                                <small><i class="fa fa-clock-o"></i> 最近的评论</small>
+                                <small><i class="fa fa-clock-o"></i> {{ current_user.lastcommentform().username }}最近的评论{{ current_user.lastcomment().body }}</small>
                               </h4>
                               <br>
                               <!-- The message -->
@@ -140,20 +140,20 @@
                     <!-- Menu toggle button -->
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                       <i class="fa fa-flag-o"></i>
-                      <span class="label label-warning">sd </span>
+                      <span class="label label-warning">{{ current_user.unread_web_pushes()}} </span>
                     </a>
                     <ul class="dropdown-menu">
-                      <li class="header">你有 55 条未读订阅</li>
+                      <li class="header">你有 {{ current_user.unread_web_pushes()}} 条未读订阅</li>
                       <li>
                         <!-- inner menu: contains the messages -->
-                        {% if -1 > 0  %}
+                        {% if current_user.unread_web_pushes() > 0  %}
                         <ul class="menu">
                           <li><!-- start message -->
                             <a href="{{ url_for('main.show_web_push', username=current_user.username) }}">
                               <div class="pull-left">
                                 <!-- User Image -->
                                 {% if current_user.is_authenticated %}
-                                <img class="user-image" alt="User Image" src="img/linmeimei.jpeg">
+                                <img class="user-image" alt="User Image" src="{{ current_user.lastwebpush().post.author.gravatar(size=256) }}">
                                 {% endif %}
                               </div>
                               <!-- Message title and timestamp -->
@@ -162,7 +162,7 @@
                               </h4>
                               <br>
                               <!-- The message -->
-                              <p>发表了文章:</p>
+                              <p>{{ current_user.lastwebpush().post.author.username }}发表了文章:{{ current_user.lastwebpush().post.head }}</p>
                             </a>
                           </li><!-- end message -->
                         </ul><!-- /.menu -->
@@ -192,14 +192,14 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                       <!-- The user image in the navbar-->
                       <!-- <img src="{{url_for('static',filename='img/my.jpg')}}" class="user-image" alt="User Image"> -->
-                      <img class="user-image" alt="User Image" src="">
+                      <img class="user-image" alt="User Image" src="{{ current_user.gravatar(size=256) }}">
                       <!-- hidden-xs hides the username on small devices so only the image appears. -->
                       <span class="hidden-xs">愚蠢的人类</span>
                     </a>
                     <ul class="dropdown-menu">
                       <!-- The user image in the menu -->
                       <li class="user-header">
-                        <img class="img-circle"  alt="User Image" src="">
+                        <img class="img-circle"  alt="User Image" src="{{ current_user.gravatar(size=256) }}">
                           <p>
                           愚蠢的人类，信仰圣光吧！！
                           <small>
@@ -259,15 +259,20 @@
       <li class="treeview">
           <a href="#"><i class="fa fa-circle-o text-aqua"></i> <span>全部分类</span> <i class="fa fa-angle-left pull-right"></i></a>
           <ul class="treeview-menu" style="display: block;">
-          kkkk
+            {% for category in g.categorys %}
+            <li><a href= "{{ url_for('main.category', id=category.id) }}">{{category.name}}({{category.posts.count()}})</a></li>
+            {% endfor %}
           </ul>
       </li>
 
       <li class="treeview">
         <a href="#"><i class="fa fa-circle-o text-red"></i> <span>热门文章</span> <i class="fa fa-angle-left pull-right"></i></a>
         <ul class="treeview-menu" style="display: block;">
-          <li>khj</li>
-<!--                 最长26字    -->
+            {% for post in g.hot_post %}
+                <li><a href="{{ url_for('main.post', id=post.id) }}">No1. {{post.head}}</a></li>
+            {% endfor %}
+
+            <!--   最长26字    -->
         </ul>
       </li>
       <li><a href="#top"><i class="fa fa-share"></i> <span>回到顶部</span></a></li>

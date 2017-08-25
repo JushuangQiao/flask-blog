@@ -19,7 +19,7 @@ from app.main.forms import SearchForm
 @auth.before_app_request
 def before_request():
     g.search_form = SearchForm()
-    g.hot_post = Post().hotpost()
+    g.hot_post = Post.hotpost()
     g.current_time = datetime.utcnow()
     g.categorys = Category.query.all()
     if current_user.is_authenticated:

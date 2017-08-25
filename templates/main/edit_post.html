@@ -1,11 +1,18 @@
-{% extends 'main/md_editor.html' %}
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
 {% block title %}编辑博客{% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="page-header ">
-        <h1>编辑博客</h1>
-    </div>
+{% block page_content %}
+<div class="page-header">
+    <h1>编辑博客</h1>
 </div>
+<div>
+    {{ wtf.quick_form(form) }}
+</div>
+{% endblock %}
+
+{% block scripts %}
 {{ super() }}
-{%endblock%}
+{{ pagedown.include_pagedown() }}
+{% endblock %}

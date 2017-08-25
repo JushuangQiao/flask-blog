@@ -1,5 +1,6 @@
 # blog
 一个基于flask创建的blog系统
+前端界面部分参考了https://github.com/ifwenvlook/blog
 
 ## 安装步骤
 ### 1. 安装 virtualenv

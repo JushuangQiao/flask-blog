@@ -11,7 +11,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_login import LoginManager
 from flask_pagedown import PageDown
-from setting import config
+from celery import Celery
+from setting import config, Config
 
 bootstrap = Bootstrap()
 moment = Moment()
@@ -22,6 +23,7 @@ pagedown = PageDown()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
+celery = Celery(__name__, broker=Config.CELERY_BROKER_URL)
 
 
 def create_app(config_name):
@@ -36,6 +38,7 @@ def create_app(config_name):
     db.init_app(app)
     pagedown.init_app(app)
     login_manager.init_app(app)
+    celery.conf.update(app.config)
 
     from .main import main
     app.register_blueprint(main)
@@ -48,6 +51,9 @@ def create_app(config_name):
 
     from .api_1_0 import api as api_1_0_blueprint
     app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
+
+    from .tasks import tasks as tasks_blueprint
+    app.register_blueprint(tasks_blueprint, url_prefix='/tasks')
 
     return app
 

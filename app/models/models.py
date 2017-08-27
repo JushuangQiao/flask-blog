@@ -248,7 +248,7 @@ class Category(db.Model):
 
     @staticmethod
     def insert_categorys():
-        categorylist = ["Python", "Web", "Linux", "c/c++", "数据库", "前端", "杂记"]
+        categorylist = ["Python", "Web", "Linux", "c/c++", u"数据库", u"前端", u"杂记"]
         for category in categorylist:
             postcategory = Category.query.filter_by(name=category).first()
             if postcategory is None:

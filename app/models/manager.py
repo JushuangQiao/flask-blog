@@ -219,6 +219,7 @@ class PostManager(object):
             post = Post(head=head, body=body, author_id=author.id, category=category)
             db.session.add(post)
             db.session.commit()
+            return post
         except Exception as e:
             current_app.logger.error('PostManager.add_post failed: {0}'.format(e))
 

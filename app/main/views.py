@@ -4,16 +4,17 @@
 主要的接口
 """
 
-from flask import render_template, url_for, redirect, request, abort
+from flask import render_template, url_for, redirect, request, abort, g
 from flask import current_app as app
 from flask import make_response, flash
 from flask_login import login_required, current_user
 from . import main
 from forms import EditProfileForm, EditAdminForm, PostForm, CommentForm
 from app.models import db
-from app.models.models import User, Permission, Post, Comment
+from app.models.models import User, Permission, Post, Comment, Category, Message
 from app.decorators import admin_required, permission_required
 from app.models.manager import UserManager, PostManager, CommentManager
+from app.tasks.celery_mail import send_async_web_push
 
 
 @main.route('/blog', methods=['GET', 'POST'])
@@ -22,50 +23,39 @@ def blog():
     if current_user.is_anonymous:
         return redirect(url_for('main.show_all'))
     user = User.query.filter_by(username=current_user.username).first_or_404()
-    try:
-        if UserManager.can(current_user, Permission.WRITE_ARTICLES) and form.validate_on_submit():
-            PostManager.add_post(title=form.title.data, body=form.body.data, author=current_user)
-            return redirect(url_for('main.home'))
-    except Exception, e:
-        app.logger.error('func: home writing failed:{0}'.format(e))
-        abort(500)
-    return render_template('main/blog.html', user=user, form=form)
+    if UserManager.can(current_user, Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        post = PostManager.add_post(head=form.head.data, body=form.body.data, author=current_user,
+                                    category=Category.query.get(form.category.data))
+        username = current_user.username
+        post_id = post.id
+        send_async_web_push.delay(username=username, post_id=post_id)
+        flash(u"博客已发布")
+        return redirect(url_for('main.home'))
+    return render_template('main/write_blog.html', user=user, form=form)
 
 
 @main.route('/')
 @main.route('/home', methods=['GET', 'POST'])
 def home():
+    user = User()
+    message = Message()
+    category = Category()
     page = request.args.get('page', 1, type=int)
     show_followed = False
-    try:
-        if current_user.is_authenticated:
-            show_followed = bool(request.cookies.get('show_followed', ''))
-        if show_followed:
-            query = UserManager.followed_posts(current_user)
-        else:
-            query = Post.query
-        pagination = query.order_by(Post.timestamp.desc()).paginate(page,
-                                                                    per_page=10, error_out=False)
-        posts = pagination.items
-        return render_template('main/home.html', posts=posts,
-                               show_followed=show_followed, pagination=pagination)
-    except Exception, e:
-        app.logger.error('func:user error:{0}'.format(e))
-        #abort(500)
-        if current_user.is_authenticated:
-            show_followed = bool(request.cookies.get('show_followed', ''))
-        if show_followed:
-            query = UserManager.followed_posts(current_user)
-        else:
-            query = Post.query
-        pagination = query.order_by(Post.timestamp.desc()).paginate(page,
-                                                                    per_page=10, error_out=False)
-        posts = pagination.items
-        return render_template('main/home.html', posts=posts,
-                               show_followed=show_followed, pagination=pagination)
+    if current_user.is_authenticated:
+        show_followed = bool(request.cookies.get('show_followed', ''))
+    if show_followed:
+        query = UserManager.followed_posts(current_user)
+    else:
+        query = Post.query
+    pagination = query.order_by(Post.timestamp.desc()).paginate(page, per_page=10, error_out=False)
+    posts = pagination.items  # 分页显示
+
+    return render_template('main/home.html', posts=posts, user=user, message=message,
+                           category=category, show_followed=show_followed, pagination=pagination)
 
 
-@main.route('/user/<username>/details')
+@main.route('/user/<username>')
 @login_required
 def user_detail(username):
     user = User.query.filter_by(username=username).first()
@@ -73,11 +63,10 @@ def user_detail(username):
         abort(404)
     try:
         page = request.args.get('page', 1, type=int)
-        pagination = Post.query.filter_by(author_id=current_user.id).order_by(
+        pagination = Post.query.filter_by(author_id=user.id).order_by(
             Post.timestamp.desc()).paginate(page, per_page=10, error_out=False)
         posts = pagination.items
-        istitle = 0
-        return render_template('main/user_detail.html', user=user, istitle=istitle,
+        return render_template('main/user_detail.html', user=user,
                                posts=posts, pagination=pagination)
     except Exception, e:
         app.logger.error('func: detail failed:{0}'.format(e))
@@ -120,11 +109,14 @@ def edit_profile_admin(id):
 
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
+    hot_post = Post.hotpost()
     posts = Post.query.get_or_404(id)
     form = CommentForm()
+    posts.visits += 1
     try:
         if form.validate_on_submit():
             CommentManager.add_comment(body=form.body.data, post=posts, author=current_user)
+            flash(u'你的评论已提交.')
             return redirect(url_for('main.post', id=posts.id, page=-1))
         page = request.args.get('page', 1, type=int)
         if page == -1:
@@ -132,9 +124,8 @@ def post(id):
         pagination = posts.comments.order_by(Comment.timestamp.asc()).paginate(
             page, per_page=10, error_out=False)
         comments = pagination.items
-        istitle = 1
-        return render_template('main/post.html', posts=[posts], form=form,
-                               istitle=istitle, pagination=pagination, comments=comments)
+        return render_template('main/post.html', posts=[posts], form=form, hot_post=hot_post,
+                               pagination=pagination, comments=comments)
     except Exception, e:
         app.logger.error('func: post error:{0}'.format(e))
         abort(500)
@@ -147,17 +138,16 @@ def edit_post(id):
     if current_user != post.author and not UserManager.can(current_user, Permission.ADMINISTER):
         abort(403)
     form = PostForm()
-    try:
-        if form.validate_on_submit():
-            post.title = form.title.data
-            post.body = form.body.data
-            db.session.add(post)
-            return redirect(url_for('main.post', id=post.id))
-        form.title.data = post.title
-        form.body.data = post.body
-        return render_template('main/edit_post.html', form=form)
-    except Exception, e:
-        app.logger.error('func: edit_post error:{0}'.format(e))
+    if form.validate_on_submit():
+        post.head = form.head.data
+        post.body = form.body.data
+        post.category = Category.query.get(form.category.data)
+        db.session.add(post)
+        return redirect(url_for('main.post', id=post.id))
+    form.head.data = post.head
+    form.body.data = post.body
+    form.category.data = post.category_id
+    return render_template('main/edit_post.html', form=form)
 
 
 @main.route('/delete/<int:id>', methods=['GET', 'POST'])
@@ -285,6 +275,77 @@ def moderate_disable(id):
     return redirect(url_for('main.moderate', page=request.args.get('page', 1, type=int)))
 
 
+@main.route('/user/<username>/star-posts')
+def star_posts(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('.index'))
+    page = request.args.get('page', 1, type=int)
+    # pagination = user.starposts.paginate(
+    #     page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+    #     error_out=False)
+    posts = user.starposts
+    return render_template('main/star_posts.html', user=user, title="收藏的文章", posts=posts)
+
+
+@main.route('/send-message/<username>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.COMMENT)
+def send_message(username):
+    user = User.query.filter_by(username=username).first()
+    # form = SendmessageForm()
+    form = ''
+    if form.validate_on_submit():
+        # message = Message(body=form.body.data, author=current_user, sendto=user)
+        message = ''
+        db.session.add(message)
+        db.session.commit()
+        flash('私信发送成功')
+        return redirect(url_for('.user', username=username))
+
+    return render_template('main/send_message.html', form=form, )
+
+
+@main.route('/user/<username>/comments')
+def user_comments(username):
+    from flask import current_app
+    user=User.query.filter_by(username=username).first()
+    page = request.args.get('page', 1, type=int)
+    pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
+        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
+        error_out=False)
+    comments = pagination.items
+    return render_template('main/user_comments.html', comments=comments,user=user,
+                           pagination=pagination, page=page)
+
+
+@main.route('/star/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def star(id):
+    post = Post.query.get_or_404(id)
+    if current_user.staring(post):
+        flash(u'你已经收藏了这篇文章')
+        return redirect(url_for('main.post', id=post.id))
+    current_user.star(post)
+    flash(u'收藏完成')
+    return redirect(url_for('main.post', id=post.id))
+
+
+@main.route('/unstar/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def unstar(id):
+    post = Post.query.get_or_404(id)
+    if not current_user.staring(post):
+        flash('你没有收藏这篇文章')
+        return redirect(url_for('main.post', id=post.id))
+    current_user.unstar(post)
+    flash('你不再收藏这篇旷世奇文了，太可惜了，你与大牛失之交臂')
+    return redirect(url_for('main.post', id=post.id))
+
+
 @main.route('/about', methods=['GET', 'POST'])
 def about():
     return render_template('main/about.html')
@@ -308,3 +369,28 @@ def show_notice():
 @main.route('/show-web-push')
 def show_web_push():
     return render_template('main/moderate.html')
+
+
+@main.route('/search', methods = ['POST'])
+def search():
+    if not g.search_form.validate_on_submit():
+        return redirect(url_for('main.home'))
+    return redirect(url_for('main.search_results', query=g.search_form.search.data))
+
+
+@main.route('/search_results/<query>')
+def search_results(query):
+    posts = Post.query.filter(Post.head.like('%'+query+'%')).all()
+    return render_template('main/search_results.html', query=query, posts=posts)
+
+
+@main.route('/category/<int:id>')
+def category(id):
+    category = Category.query.get_or_404(id)
+    page = request.args.get('page', 1, type=int)
+    pagination = category.posts.order_by(Post.timestamp.desc()).paginate(
+        page, per_page=10, error_out=False)
+    posts = pagination.items
+    return render_template('main/category.html', category=category, posts=posts,
+                           pagination=pagination)
+

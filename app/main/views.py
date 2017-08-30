@@ -275,20 +275,6 @@ def moderate_disable(id):
     return redirect(url_for('main.moderate', page=request.args.get('page', 1, type=int)))
 
 
-@main.route('/user/<username>/star-posts')
-def star_posts(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('.index'))
-    page = request.args.get('page', 1, type=int)
-    # pagination = user.starposts.paginate(
-    #     page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
-    #     error_out=False)
-    posts = user.starposts
-    return render_template('main/star_posts.html', user=user, title="收藏的文章", posts=posts)
-
-
 @main.route('/send-message/<username>', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.COMMENT)
@@ -339,11 +325,36 @@ def star(id):
 def unstar(id):
     post = Post.query.get_or_404(id)
     if not current_user.staring(post):
-        flash('你没有收藏这篇文章')
+        flash(u'你没有收藏这篇文章')
         return redirect(url_for('main.post', id=post.id))
     current_user.unstar(post)
-    flash('你不再收藏这篇旷世奇文了，太可惜了，你与大牛失之交臂')
+    flash(u'你不再收藏这篇旷世奇文了，太可惜了，你与大牛失之交臂')
     return redirect(url_for('main.post', id=post.id))
+
+
+@main.route('/delete-star/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def delete_star(id):
+    post = Post.query.get_or_404(id)
+    if not current_user.staring(post):
+        flash(u'你没有收藏这篇文章')
+        return redirect(url_for('main.star_posts', username=current_user.username))
+    current_user.unstar(post)
+    flash(u'你不再收藏这篇旷世奇文了，太可惜了，你与大牛失之交臂')
+    return redirect(url_for('main.star_posts', username=current_user.username))
+
+
+@main.route('/user/<username>/star-posts')
+def star_posts(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('main.home'))
+    page = request.args.get('page', 1, type=int)
+    posts = user.star_posts
+    return render_template('main/user_star_posts.html', user=user, title=u"收藏的文章",
+                           posts=posts)
 
 
 @main.route('/about', methods=['GET', 'POST'])

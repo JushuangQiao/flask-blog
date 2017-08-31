@@ -195,12 +195,16 @@ def followers(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         return redirect(url_for('main.home'))
+    if user == current_user:
+        title = u'我的粉丝'
+    else:
+        title = user.real_name + u'的粉丝'
     page = request.args.get('page', 1, type=int)
     pagination = user.followers.paginate(page, per_page=10, error_out=False)
     follows = [{'user': item.follower, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('main/followers.html', user=user, title=u"的粉丝",
-                           endpoint='.followers', pagination=pagination,
+    return render_template('main/followers.html', user=user, title=title,
+                           endpoint='main.followers', pagination=pagination,
                            follows=follows)
 
 
@@ -209,13 +213,17 @@ def followed_by(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         return redirect(url_for('main.home'))
+    if user == current_user:
+        title = u'我的关注'
+    else:
+        title = user.real_name + u'的关注'
     page = request.args.get('page', 1, type=int)
     pagination = user.followed.paginate(
         page, per_page=10, error_out=False)
     follows = [{'user': item.followed, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('main/followers.html', user=user, title=u"关注的人",
-                           endpoint='.followed_by', pagination=pagination,
+    return render_template('main/followers.html', user=user, title=title,
+                           endpoint='main.followed_by', pagination=pagination,
                            follows=follows)
 
 

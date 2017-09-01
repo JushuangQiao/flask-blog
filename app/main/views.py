@@ -9,7 +9,7 @@ from flask import current_app as app
 from flask import make_response, flash
 from flask_login import login_required, current_user
 from . import main
-from forms import EditProfileForm, EditAdminForm, PostForm, CommentForm
+from forms import EditProfileForm, EditAdminForm, PostForm, CommentForm, SendMessageForm
 from app.models import db
 from app.models.models import User, Permission, Post, Comment, Category, Message
 from app.decorators import admin_required, permission_required
@@ -283,35 +283,26 @@ def moderate_disable(id):
     return redirect(url_for('main.moderate', page=request.args.get('page', 1, type=int)))
 
 
-@main.route('/send-message/<username>', methods=['GET', 'POST'])
-@login_required
-@permission_required(Permission.COMMENT)
-def send_message(username):
-    user = User.query.filter_by(username=username).first()
-    # form = SendmessageForm()
-    form = ''
-    if form.validate_on_submit():
-        # message = Message(body=form.body.data, author=current_user, sendto=user)
-        message = ''
-        db.session.add(message)
-        db.session.commit()
-        flash('私信发送成功')
-        return redirect(url_for('.user', username=username))
-
-    return render_template('main/send_message.html', form=form, )
-
-
 @main.route('/user/<username>/comments')
 def user_comments(username):
-    from flask import current_app
-    user=User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username).first()
     page = request.args.get('page', 1, type=int)
     pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'],
-        error_out=False)
+        page, per_page=10, error_out=False)
     comments = pagination.items
-    return render_template('main/user_comments.html', comments=comments,user=user,
+    return render_template('main/user_comments.html', comments=comments, user=user,
                            pagination=pagination, page=page)
+
+
+@main.route('/delete_user_comments/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def delete_user_comments(id):
+    comment = Comment.query.get_or_404(id)
+    page = request.args.get('page', 1, type=int)
+    db.session.delete(comment)
+    flash(u"评论已删除")
+    return redirect(url_for('main.user_comments', username=current_user.username, page=page))
 
 
 @main.route('/star/<int:id>')
@@ -380,6 +371,22 @@ def show_message():
     return render_template('main/moderate.html')
 
 
+@main.route('/send-message/<username>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.COMMENT)
+def send_message(username):
+    user = User.query.filter_by(username=username).first()
+    form = SendMessageForm()
+    if form.validate_on_submit():
+        message = Message(body=form.body.data, author=current_user, sendto=user)
+        db.session.add(message)
+        db.session.commit()
+        flash(u'私信发送成功')
+        return redirect(url_for('main.user_detail', username=username))
+
+    return render_template('main/send_message.html', form=form)
+
+
 @main.route('/show-notice')
 def show_notice():
     return render_template('main/moderate.html')
@@ -390,7 +397,7 @@ def show_web_push():
     return render_template('main/moderate.html')
 
 
-@main.route('/search', methods = ['POST'])
+@main.route('/search', methods=['POST'])
 def search():
     if not g.search_form.validate_on_submit():
         return redirect(url_for('main.home'))

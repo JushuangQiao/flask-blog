@@ -388,8 +388,35 @@ def send_message(username):
 
 
 @main.route('/show-notice')
+@login_required
+@permission_required(Permission.COMMENT)
 def show_notice():
-    return render_template('main/moderate.html')
+    page = request.args.get('page', 1, type=int)
+    pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
+        page, per_page=10, error_out=False)
+    comments = pagination.items
+    return render_template('main/show_notice.html', comments=comments,
+                           pagination=pagination, page=page)
+
+
+@main.route('/show-notice/unconfirmed/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def show_notice_unconfirmed(id):
+    comment = Comment.query.get_or_404(id)
+    comment.confirmed = True
+    db.session.add(comment)
+    return redirect(url_for('main.show_notice', page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/show-notice/confirmed/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def show_notice_confirmed(id):
+    comment = Comment.query.get_or_404(id)
+    comment.confirmed = False
+    db.session.add(comment)
+    return redirect(url_for('main.show_notice', page=request.args.get('page', 1, type=int)))
 
 
 @main.route('/show-web-push')

@@ -153,7 +153,7 @@
                               <div class="pull-left">
                                 <!-- User Image -->
                                 {% if current_user.is_authenticated %}
-                                <img class="user-image" alt="User Image" src="{{ current_user.lastwebpush().post.author.gravatar(size=256) }}">
+                                <img class="user-image" alt="User Image" src="{{ current_user.last_web_push().post.author.gravatar(size=256) }}">
                                 {% endif %}
                               </div>
                               <!-- Message title and timestamp -->
@@ -162,7 +162,7 @@
                               </h4>
                               <br>
                               <!-- The message -->
-                              <p>{{ current_user.lastwebpush().post.author.username }}发表了文章:{{ current_user.lastwebpush().post.head }}</p>
+                              <p>{{ current_user.last_web_push().post.author.username }}发表了文章:{{ current_user.last_web_push().post.head }}</p>
                             </a>
                           </li><!-- end message -->
                         </ul><!-- /.menu -->

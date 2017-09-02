@@ -367,8 +367,15 @@ def edit():
 
 
 @main.route('/show-message')
+@login_required
+@permission_required(Permission.COMMENT)
 def show_message():
-    return render_template('main/moderate.html')
+    page = request.args.get('page', 1, type=int)
+    pagination = Message.query.order_by(Message.timestamp.desc()).filter_by(
+        sendto=current_user).paginate(page, per_page=10, error_out=False)
+    messages = pagination.items
+    return render_template('main/show_message.html', messages=messages,
+                           pagination=pagination, page=page)
 
 
 @main.route('/send-message/<username>', methods=['GET', 'POST'])
@@ -385,6 +392,36 @@ def send_message(username):
         return redirect(url_for('main.user_detail', username=username))
 
     return render_template('main/send_message.html', form=form)
+
+
+@main.route('/show-message/unconfirmed/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def show_message_unconfirmed(id):
+    message = Message.query.get_or_404(id)
+    message.confirmed = True
+    db.session.add(message)
+    return redirect(url_for('main.show_message', page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/show-message/confirmed/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def show_message_confirmed(id):
+    message = Message.query.get_or_404(id)
+    message.confirmed = False
+    db.session.add(message)
+    return redirect(url_for('main.show_message', page=request.args.get('page', 1, type=int)))
+
+
+@main.route('/show-message/delete/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def message_delete(id):
+    message = Message.query.get_or_404(id)
+    db.session.delete(message)
+    flash(u'私信删除成功')
+    return redirect(url_for('main.show_message', page=request.args.get('page', 1, type=int)))
 
 
 @main.route('/show-notice')

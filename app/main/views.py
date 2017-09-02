@@ -11,7 +11,7 @@ from flask_login import login_required, current_user
 from . import main
 from forms import EditProfileForm, EditAdminForm, PostForm, CommentForm, SendMessageForm
 from app.models import db
-from app.models.models import User, Permission, Post, Comment, Category, Message
+from app.models.models import User, Permission, Post, Comment, Category, Message, WebPush
 from app.decorators import admin_required, permission_required
 from app.models.manager import UserManager, PostManager, CommentManager
 from app.tasks.celery_mail import send_async_web_push
@@ -456,9 +456,49 @@ def show_notice_confirmed(id):
     return redirect(url_for('main.show_notice', page=request.args.get('page', 1, type=int)))
 
 
-@main.route('/show-web-push')
-def show_web_push():
-    return render_template('main/moderate.html')
+@main.route('/<username>/show-web-push')
+@login_required
+@permission_required(Permission.COMMENT)
+def show_web_push(username):
+    page = request.args.get('page', 1, type=int)
+    pagination = WebPush.query.order_by(WebPush.timestamp.desc()).filter_by(
+        sendto=current_user).paginate(page, per_page=10, error_out=False)
+    web_pushes = pagination.items
+    return render_template('main/web_push.html', web_pushes=web_pushes,
+                           pagination=pagination, page=page)
+
+
+@main.route('/web-push/unconfirmed/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def web_push_unconfirmed(id):
+    web_push = WebPush.query.get_or_404(id)
+    web_push.confirmed = True
+    db.session.add(web_push)
+    return redirect(url_for('main.show_web_push', page=request.args.get('page', 1, type=int),
+                            username=request.args.get('username')))
+
+
+@main.route('/web-push/confirmed/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def web_push_confirmed(id):
+    web_push = WebPush.query.get_or_404(id)
+    web_push.confirmed = False
+    db.session.add(web_push)
+    return redirect(url_for('main.show_web_push', page=request.args.get('page', 1, type=int),
+                            username=request.args.get('username')))
+
+
+@main.route('/show-web-push/delete/<int:id>')
+@login_required
+@permission_required(Permission.COMMENT)
+def web_push_delete(id):
+    web_push = WebPush.query.get_or_404(id)
+    db.session.delete(web_push)
+    flash(u'消息删除成功')
+    return redirect(url_for('main.show_web_push', page=request.args.get('page', 1, type=int),
+                            username=request.args.get('username')))
 
 
 @main.route('/search', methods=['POST'])

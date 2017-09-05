@@ -136,8 +136,8 @@ def add_category():
         category = Category(name=form.name.data)
         db.session.add(category)
         db.session.commit()
-        flash('已添加" '+category.name+' "为新的分类')
-        return redirect(url_for('.editcategory'))
+        flash(u'已添加" '+category.name+u' "为新的分类')
+        return redirect(url_for('admin.edit_category'))
     return render_template('admin/add_category.html',form=form)
 
 

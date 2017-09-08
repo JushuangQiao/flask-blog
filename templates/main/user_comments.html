@@ -8,8 +8,8 @@
 
 <div class="btn-group">
 <a href="{{ url_for('main.user_detail',username=user.username)}}" class="btn btn-default" >{{ user.posts.count() }}篇博客</a>
-<a href="{{ url_for('main.user_comments',username=user.username)}}" class="btn btn-default">{{ user.comments.count() }}条评论</a>
-<a href="{{ url_for('main.star_posts', username=user.username) }}" class="btn btn-info">{{ user.starposts.__len__() }}篇收藏</a>
+<a href="{{ url_for('main.user_comments',username=user.username)}}" class="btn btn-info">{{ user.comments.count() }}条评论</a>
+<a href="{{ url_for('main.star_posts', username=user.username) }}" class="btn btn-default">{{ user.starposts.__len__() }}篇收藏</a>
 </div>
 </br>
 

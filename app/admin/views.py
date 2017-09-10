@@ -14,8 +14,8 @@ from .forms import AdminForm, UserForm, CategoryForm
 @login_required
 def edit():
     page = request.args.get('page', 1, type=int)
-    pagination = User.query.filter(User.role_id.in_([4, 5])).order_by(User.member_since.desc()).paginate(
-        page, per_page=10, error_out=False)
+    pagination = User.query.filter(User.role_id.in_([4, 5])).order_by(
+        User.member_since.desc()).paginate(page, per_page=10, error_out=False)
     admins = pagination.items
     return render_template('admin/edit.html', admins=admins, pagination=pagination, page=page)
 

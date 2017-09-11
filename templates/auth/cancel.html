@@ -9,7 +9,10 @@
 	<a href="{{ url_for('main.user_detail', username=current_user.username) }}"class="btn btn-default btn-flat">个人资料</a>
     <a href="{{ url_for('auth.cancel') }}" class="btn btn-default btn-flat">注销账户</a>
 </div>
-
+    <div>
+        <h2 style="color: #cb2027">您确定要注销账户？注销后无法登录系统了哦，请三思！</h2>
+        <h2>您当前的邮箱是：{{ current_user.email }}</h2>
+    </div>
 <div class="col-md-4">
     {{ wtf.quick_form(form) }}
 </div>

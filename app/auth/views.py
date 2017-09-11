@@ -12,7 +12,7 @@ from . import auth
 from app import db
 from app.models.manager import UserManager
 from app.models.models import Post, Category
-from .forms import LoginForm, RegistrationForm, ChangePasswordForm, ResetPasswordForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm, ResetPasswordForm, CancelForm
 from app.main.forms import SearchForm
 
 
@@ -49,6 +49,17 @@ def logout():
     logout_user()
     flash(u'您已登出系统')
     return redirect(url_for('main.home'))
+
+
+@auth.route('/cancel', methods=['GET', 'POST'])
+@login_required
+def cancel():
+    form = CancelForm()
+    if form.validate_on_submit():
+        UserManager.del_user(current_user.id)
+        flash(u'账户已经注销')
+        return redirect(url_for('main.home'))
+    return render_template('auth/cancel.html', form=form)
 
 
 @auth.route('/register', methods=['GET', 'POST'])

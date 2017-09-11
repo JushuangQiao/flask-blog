@@ -54,3 +54,7 @@ class ResetPasswordForm(FlaskForm):
                                          EqualTo('password2', message=u'输入密码不一致')])
     password2 = PasswordField(u'确认密码', validators=[DataRequired()])
     submit = SubmitField(u'重置密码')
+
+
+class CancelForm(FlaskForm):
+    submit = SubmitField(u'确定')

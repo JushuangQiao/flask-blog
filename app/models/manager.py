@@ -53,6 +53,15 @@ class UserManager(object):
             current_app.logger.error('UserManager.add_user failed: {0}'.format(e))
 
     @staticmethod
+    def del_user(user_id):
+        try:
+            user = User.query.filter_by(id=user_id).first()
+            db.session.delete(user)
+            db.session.commit()
+        except Exception as e:
+            current_app.logger.error('UserManager.del_user failed: {0}'.format(e))
+
+    @staticmethod
     def verify_password(email, password, remember_me=None):
         try:
             user = User.query.filter_by(email=email).first()

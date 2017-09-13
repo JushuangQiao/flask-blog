@@ -91,6 +91,7 @@ class Star(db.Model):
 class User(UserMixin, db.Model):
     # 用户
     __tablename__ = 'users'
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
     id = Column(Integer, primary_key=True)
     username = Column(String(64), index=True)
     password = Column(String(128))
@@ -242,6 +243,7 @@ login_manager.anonymous_user = AnonymousUser
 
 class Category(db.Model):
     __tablename__ = 'categorys'
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     posts = db.relationship('Post', backref='category', lazy='dynamic')
@@ -263,6 +265,7 @@ class Category(db.Model):
 class Post(db.Model):
     # 文章
     __tablename__ = 'posts'
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
     id = Column(Integer, primary_key=True)
     head = Column(String(256))
     body = Column(Text)
@@ -290,6 +293,7 @@ class Comment(db.Model):
     评论
     """
     __tablename__ = 'comments'
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
     id = Column(Integer, primary_key=True)
     body = Column(Text)
     body_html = Column(Text)

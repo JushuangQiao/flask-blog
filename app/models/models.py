@@ -6,7 +6,7 @@
 from datetime import datetime
 from flask_login import UserMixin, AnonymousUserMixin
 from . import *
-from .. import login_manager
+from app import login_manager
 
 
 class Permission:

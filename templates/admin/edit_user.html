@@ -7,8 +7,14 @@
 
 
 {% block page_content %}
-{% include 'include/_admin_edit.html' %}
-</br>
+    {% include 'include/_admin_edit.html' %}
+    <div class="btn-group">
+        <a href="{{ url_for('admin.edit') }}" class="btn btn-default" >后台管理员</a>
+        <a href="{{ url_for('admin.edit_user') }}" class="btn btn-info">所有用户</a>
+        <a href="{{ url_for('admin.edit_post') }}" class="btn btn-default">文章管理</a>
+        <a href="{{ url_for('admin.edit_category') }}" class="btn btn-default">分类管理</a>
+        <a href="{{ url_for('admin.edit_comment') }}" class="btn btn-default">评论管理</a>
+    </div>
 
 
 <h3><strong>用户列表</strong>

@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app.models.models import Role, User, Post, Comment, Category
 from app.models.manager import UserManager
 from app.decorators import admin_required
@@ -39,11 +39,11 @@ def add_admin():
     if form.validate_on_submit():
         user = User(email=form.username.data+'@qiao.com', username=form.username.data,
                     password=form.password.data,
-                    role_id=Role.query.filter_by(name='4').first().id)
+                    role_id=Role.query.filter_by(name='Moderator').first().id)
         db.session.add(user)
         db.session.commit()
         flash(u'已添加" '+user.username+u' "为管理员')
-        return redirect(url_for('main.edit'))
+        return redirect(url_for('admin.edit'))
     return render_template('admin/add_admin.html', form=form)
 
 
@@ -113,10 +113,10 @@ def delete_post(id):
     db.session.delete(post)
     for comment in post.comments:
         db.session.delete(comment)
-    for web_push in post.webpushs:
+    for web_push in post.web_pushes:
         db.session.delete(web_push)
     flash(u'博客以及相关的评论、推送已删除')
-    return redirect(url_for('main.edit_post'))
+    return redirect(url_for('admin.edit_post'))
 
 
 @admin.route('/edit-category', methods=['GET', 'POST'])
@@ -138,7 +138,17 @@ def add_category():
         db.session.commit()
         flash(u'已添加" '+category.name+u' "为新的分类')
         return redirect(url_for('admin.edit_category'))
-    return render_template('admin/add_category.html',form=form)
+    return render_template('admin/add_category.html', form=form)
+
+
+@admin.route('/delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_category(id):
+    category = Category.query.get_or_404(id)
+    db.session.delete(category)
+    flash(u'"' + category.name + u' "已经删除')
+    return redirect(url_for('admin.edit_category'))
 
 
 @admin.route('/edit-comment')
@@ -183,3 +193,17 @@ def edit_comment_disable(id):
     db.session.add(comment)
     return redirect(url_for('admin.edit_comment',
                             page=request.args.get('page', 1, type=int)), )
+
+
+@admin.route('/update-category/<int:id>', methods=['GET', 'POST'])
+@login_required
+def update_category(id):
+    category = Category.query.get_or_404(id)
+    form = CategoryForm()
+    if form.validate_on_submit():
+        category.name = form.name.data
+        db.session.add(category)
+        flash(u'已修改" ' + category.name + u' "')
+        return redirect(url_for('admin.edit_category'))
+    form.name.data = category.name
+    return render_template('admin/update_category.html', form=form)

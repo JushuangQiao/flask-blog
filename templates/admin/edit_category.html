@@ -36,10 +36,10 @@
           <td><a href="{{ url_for('main.category', id=category.id) }}">{{ category.name }}</a></td>
           <td>{{category.posts.count()}}</td>
           <td>
-          	  <a href="#" class="label label-primary">
+          	  <a href="{{ url_for('admin.update_category', id=category.id) }}" class="label label-primary">
               编辑
               </a>&nbsp;&nbsp
-              <a href="#" class="label label-danger">
+              <a href="{{ url_for('admin.delete_category', id=category.id) }}" class="label label-danger">
               删除
               </a>
           </td>

@@ -44,8 +44,8 @@ class UserForm(FlaskForm):
 
 
 class CategoryForm(FlaskForm):
-    name = StringField(u'新的分类', validators=[DataRequired(), Length(1, 64)])
-    submit = SubmitField(u'添加')
+    name = StringField(u'分类名称', validators=[DataRequired(), Length(1, 64)])
+    submit = SubmitField(u'提交')
 
     def validate_username(self, field):
         if Category.query.filter_by(name=field.data).first():

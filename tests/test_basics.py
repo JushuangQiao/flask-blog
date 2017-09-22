@@ -1,6 +1,8 @@
 # coding=utf-8
 
-
+"""
+测试
+"""
 import unittest
 from flask import current_app
 from app import db, create_app

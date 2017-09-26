@@ -29,7 +29,7 @@ def blog():
         username = current_user.username
         post_id = post.id
         send_async_web_push.delay(username=username, post_id=post_id)
-        flash(u"博客已发布")
+        flash(u"发表成功")
         return redirect(url_for('main.home'))
     return render_template('main/write_blog.html', user=user, form=form)
 
@@ -116,7 +116,7 @@ def post(id):
     try:
         if form.validate_on_submit():
             CommentManager.add_comment(body=form.body.data, post=posts, author=current_user)
-            flash(u'你的评论已提交.')
+            flash(u'评论已提交.')
             return redirect(url_for('main.post', id=posts.id, page=-1))
         page = request.args.get('page', 1, type=int)
         if page == -1:
@@ -311,7 +311,7 @@ def delete_user_comments(id):
 def star(id):
     post = Post.query.get_or_404(id)
     if current_user.staring(post):
-        flash(u'你已经收藏了这篇文章')
+        flash(u'已经收藏过了')
         return redirect(url_for('main.post', id=post.id))
     current_user.star(post)
     flash(u'收藏完成')
@@ -327,7 +327,7 @@ def unstar(id):
         flash(u'你没有收藏这篇文章')
         return redirect(url_for('main.post', id=post.id))
     current_user.unstar(post)
-    flash(u'你不再收藏这篇旷世奇文了，太可惜了，你与大牛失之交臂')
+    flash(u'取消成功')
     return redirect(url_for('main.post', id=post.id))
 
 
@@ -340,7 +340,7 @@ def delete_star(id):
         flash(u'你没有收藏这篇文章')
         return redirect(url_for('main.star_posts', username=current_user.username))
     current_user.unstar(post)
-    flash(u'你不再收藏这篇旷世奇文了，太可惜了，你与大牛失之交臂')
+    flash(u'取消成功')
     return redirect(url_for('main.star_posts', username=current_user.username))
 
 

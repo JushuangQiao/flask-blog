@@ -427,6 +427,7 @@ def show_notice():
     pagination = Comment.query.order_by(Comment.timestamp.desc()).paginate(
         page, per_page=10, error_out=False)
     comments = pagination.items
+    print current_user.unread_comments(), 'aaaaa'
     return render_template('main/show_notice.html', comments=comments,
                            pagination=pagination, page=page)
 

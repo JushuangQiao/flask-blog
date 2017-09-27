@@ -110,11 +110,11 @@
                               </div>
                               <!-- Message title and timestamp -->
                               <h4>
-                                <small><i class="fa fa-clock-o"></i> {{ current_user.lastcommentform().username }}最近的评论{{ current_user.lastcomment().body }}</small>
+                                <small><i class="fa fa-clock-o"></i> {{ current_user.last_comment_form().username }}最近的评论{{ current_user.last_comment().body }}</small>
                               </h4>
                               <br>
                               <!-- The message -->
-                              <p>发表了评论:---00</p>
+                              <p>{{ current_user.last_comment_form().username }}发表了评论:{{ current_user.last_comment().body }}</p>
                             </a>
                           </li><!-- end message -->
                         </ul><!-- /.menu -->
@@ -123,7 +123,7 @@
                           <li><!-- start message -->
                             <a href="{{ url_for('main.show_notice') }}">
                             <h4>
-                            最近没有新的评论
+                            没有新评论
                                 <small><i class="fa fa-clock-o"></i> 最近的消息</small>
                             </h4>
                             </a>

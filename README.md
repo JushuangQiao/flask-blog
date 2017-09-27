@@ -11,8 +11,9 @@
 ### 6. 安装依赖包: pip install -r requirements.txt
 ### 7. 配置数据库: setting下的config文件
 ### 8. 生成数据库，虚拟环境下执行: python manage.py shell,然后输入db.create_all()
+### 9. 启动celery， celery worker -A celery_worker.celery -l INFO &
 
 ### 本地前台运行: python manage.py server
 ### 本地后台运行: nohup python manage.py server  >/Users/qiaojushuang/codes/MyCodes/blog/running_error.log 2>&1 &
 
-### 部署上线: 暂缺
+### 部署上线: 暂缺（gunicorn)

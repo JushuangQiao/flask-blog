@@ -485,7 +485,7 @@ def web_push_confirmed(id):
                             username=request.args.get('username')))
 
 
-@main.route('/show-web-push/delete/<int:id>')
+@main.route('/web-push/delete/<int:id>')
 @login_required
 @permission_required(Permission.COMMENT)
 def web_push_delete(id):

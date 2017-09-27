@@ -16,10 +16,9 @@
                         </div>
                     </div>
                 <div class="post-head">
-                <a href="{{ url_for('main.post', id=web_push.post.id) }}">
-                    <h2>{{web_push.post.head }} <small></a>&nbsp;&nbsp;&nbsp;阅读:{{ web_push.post.visits }}&nbsp;
-                    收藏:{{ web_push.post.stared.__len__() }}</small></div>
-                </div>                     
+                <a href="{{ url_for('main.post', id=web_push.post.id) }}"><h2>{{web_push.post.head }} <small></a>&nbsp;&nbsp;&nbsp;阅读:{{ web_push.post.visits }}&nbsp;
+                收藏:{{ web_push.post.stared.__len__() }}</small></h2>
+                </div>
 
                 <div class="post-body">
                 <a style="text-decoration:none; color:black" href="{{ url_for('main.post', id=web_push.post.id) }}">

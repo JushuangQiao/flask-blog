@@ -55,8 +55,7 @@
                               <div class="pull-left">
                                 <!-- User Image -->
                                 {% if current_user.is_authenticated %}
-                                <!-- <img src="{{url_for('static',filename='img/my.jpg')}}" class="img-circle" alt="User Image"> -->
-                                <img class="user-image" alt="User Image">
+                                    <img class="user-image" alt="User Image" src="/static/img/other.jpg">
                                 {% endif %}
                               </div>
                               <!-- Message title and timestamp -->
@@ -104,8 +103,7 @@
                               <div class="pull-left">
                                 <!-- User Image -->
                                 {% if current_user.is_authenticated %}
-                                <!-- <img src="{{url_for('static',filename='img/my.jpg')}}" class="img-circle" alt="User Image"> -->
-                                <img class="user-image" alt="User Image">
+                                    <img class="user-image" alt="User Image" src="/static/img/other.jpg">
                                 {% endif %}
                               </div>
                               <!-- Message title and timestamp -->
@@ -153,7 +151,7 @@
                               <div class="pull-left">
                                 <!-- User Image -->
                                 {% if current_user.is_authenticated %}
-                                <img class="user-image" alt="User Image" src="{{ current_user.last_web_push().post.author.gravatar(size=256) }}">
+                                    <img class="user-image" alt="User Image" src="/static/img/other.jpg">
                                 {% endif %}
                               </div>
                               <!-- Message title and timestamp -->
@@ -192,14 +190,14 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                       <!-- The user image in the navbar-->
                       <!-- <img src="{{url_for('static',filename='img/my.jpg')}}" class="user-image" alt="User Image"> -->
-                      <img class="user-image" alt="User Image" src="{{ current_user.gravatar(size=256) }}">
+                      <img class="user-image" alt="User Image" src="/static/img/me.jpg">
                       <!-- hidden-xs hides the username on small devices so only the image appears. -->
                       <span class="hidden-xs">用户账户</span>
                     </a>
                     <ul class="dropdown-menu">
                       <!-- The user image in the menu -->
                       <li class="user-header">
-                        <img class="img-circle"  alt="User Image" src="{{ current_user.gravatar(size=256) }}">
+                        <img class="img-circle"  alt="User Image" src="/static/img/me.jpg">
                           <p>
                           黑发不知bug少
                           <small>

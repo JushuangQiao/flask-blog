@@ -1,6 +1,10 @@
 
 <div class="page-header" >
-    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">
+        {%  if user.username == current_user.username %}
+            <img class="img-rounded profile-thumbnail" src="/static/img/me.jpg">
+        {% else %}
+            <img class="img-rounded profile-thumbnail" src="/static/img/barca.jpg">
+        {% endif %}
     <div class="profile-header">
         <h1>{{ user.username }}</h1>
         {% if user.name or user.location %}

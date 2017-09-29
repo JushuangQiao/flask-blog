@@ -292,7 +292,8 @@ class CommentManager(object):
     @staticmethod
     def add_comment(body=None, post=None, author=None):
         try:
-            comment = Comment(body=body, post_id=post.id, author_id=author.id)
+            comment = Comment(body=body, post_id=post.id, author_id=author.id,
+                              sendto_id=post.author_id)
             db.session.add(comment)
             db.session.commit()
         except Exception as e:

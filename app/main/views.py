@@ -112,7 +112,8 @@ def post(id):
     hot_post = Post.hotpost()
     posts = Post.query.get_or_404(id)
     form = CommentForm()
-    posts.visits += 1
+    if posts.author != current_user:
+        posts.visits += 1
     try:
         if form.validate_on_submit():
             CommentManager.add_comment(body=form.body.data, post=posts, author=current_user)

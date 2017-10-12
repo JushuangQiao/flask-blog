@@ -4,7 +4,11 @@
             {% if web_push.sendto == current_user %}
                 <div class="comment-thumbnail">
                 <a href="{{ url_for('main.user_detail', username=web_push.post.author.username) }}">
-                    <img class="img-rounded profile-thumbnail" src="{{ web_push.post.author.gravatar(size=40) }}">
+                        {%  if web_push.post.author.username == current_user.id %}
+                            <img class="img-rounded profile-thumbnail" src="/static/img/me.jpg" style="width:40px;height:40px;">
+                        {% else %}
+                            <img class="img-rounded profile-thumbnail" src="/static/img/other.jpg" style="width:40px;height:40px;">
+                        {% endif %}
                 </a>
                 </div>  
                 <div class="comment-content"> 

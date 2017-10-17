@@ -199,7 +199,7 @@ def followers(username):
     if user == current_user:
         title = u'我的粉丝'
     else:
-        title = user.real_name + u'的粉丝'
+        title = user.real_name + u'的粉丝' if user.real_name else user.username + u'的粉丝'
     page = request.args.get('page', 1, type=int)
     pagination = user.followers.paginate(page, per_page=10, error_out=False)
     follows = [{'user': item.follower, 'timestamp': item.timestamp}
@@ -217,7 +217,7 @@ def followed_by(username):
     if user == current_user:
         title = u'我的关注'
     else:
-        title = user.real_name + u'的关注'
+        title = user.real_name + u'的关注' if user.real_name else user.username + u'的关注'
     page = request.args.get('page', 1, type=int)
     pagination = user.followed.paginate(
         page, per_page=10, error_out=False)

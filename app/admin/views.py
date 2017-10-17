@@ -42,6 +42,7 @@ def add_admin():
                     role_id=Role.query.filter_by(name='Moderator').first().id)
         db.session.add(user)
         db.session.commit()
+        UserManager.follow(user, user)
         flash(u'已添加" '+user.username+u' "为管理员')
         return redirect(url_for('admin.edit'))
     return render_template('admin/add_admin.html', form=form)

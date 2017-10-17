@@ -15,7 +15,7 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
 manager = Manager(app)
 migrate = Migrate(app, db)
-server = Server(host='0.0.0.0', port=8888)
+server = Server(host='0.0.0.0', port=62341)
 
 
 def make_shell_context():

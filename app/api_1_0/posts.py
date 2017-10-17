@@ -40,7 +40,7 @@ def get_post(id):
 @api.route('/posts/', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_post():
-    PostManager.add_post(title=request.form.get('title'), body=request.form.get('body'),
+    PostManager.add_post(head=request.form.get('head'), body=request.form.get('body'),
                          author=g.current_user)
     return jsonify({'success': True})
 
@@ -52,7 +52,7 @@ def edit_post(id):
     if g.current_user != post.author and \
             not UserManager.can(g.current_user, Permission.ADMINISTER):
         return forbidden('Insufficient permissions')
-    post.title = request.form.get('title', post.title)
+    post.title = request.form.get('head', post.head)
     post.body = request.form.get('body', post.body)
     db.session.add(post)
     return jsonify(PostManager.to_json(post))

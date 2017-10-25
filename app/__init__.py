@@ -11,7 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_login import LoginManager
 from flask_pagedown import PageDown
-from flask_cache import Cache
+from flask_caching import Cache
 from celery import Celery
 from setting import config, Config
 
